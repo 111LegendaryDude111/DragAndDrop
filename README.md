@@ -1,2 +1,1 @@
-# DragAndDrop
-Dragn and Drop only react
+Drag and drop only React
