@@ -1,0 +1,27 @@
+.ticket {
+  position: relative;
+  right: 0;
+  top: 0;
+  padding: 20px;
+  border: 2px solid blue;
+  width: 170px;
+  height: 70px;
+  display: flex;
+  background-color: #e4d58c;
+  margin: 10px;
+  border-radius: 10px;
+  font-weight: 900;
+
+}
+
+.textarea {
+  border: none;
+  font-size: 12px;
+  background-color: #e4d58c;
+  color: black;
+  border-radius: 10px;
+  padding: 10px;
+  outline: none;
+  font-weight: 900;
+
+}
