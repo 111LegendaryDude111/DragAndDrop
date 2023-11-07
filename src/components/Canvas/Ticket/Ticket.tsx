@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { ActionType, StoreActions } from "../Canvas/store/useStore";
+import { ActionType, StoreActions } from "../store/useStore";
 import styles from "./styles.module.css";
 import { onDragEnd, onDragStart } from "./utils";
 

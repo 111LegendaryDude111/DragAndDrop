@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Ticket } from "../Ticket/Ticket";
+import { Ticket } from "./Ticket/Ticket";
 import { StoreActions, TicketType, useStore } from "./store/useStore";
 
 export const Canvas: FC = () => {
@@ -17,7 +17,9 @@ export const Canvas: FC = () => {
         }}>
         + Create Elemet
       </button>
-      <div style={{ width: "100vw", height: "100vh" }}>
+      <div 
+      style={{height: "90vh" }}
+      >
         {state.map((el: TicketType) => {
           const { id, text } = el;
 
