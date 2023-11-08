@@ -13,17 +13,24 @@ export const Canvas: FC = () => {
             type: StoreActions.createTicket,
             text: "",
             id: new Date().toISOString(),
+            position: { x: 116, y: 83 },
           });
         }}>
         + Create Elemet
       </button>
-      <div 
-      style={{height: "90vh" }}
-      >
+      <div>
         {state.map((el: TicketType) => {
-          const { id, text } = el;
+          const { id, text, position } = el;
 
-          return <Ticket key={id} text={text} dispatch={dispatch} id={id} />;
+          return (
+            <Ticket
+              key={id}
+              text={text}
+              dispatch={dispatch}
+              id={id}
+              position={position}
+            />
+          );
         })}
       </div>
     </>
