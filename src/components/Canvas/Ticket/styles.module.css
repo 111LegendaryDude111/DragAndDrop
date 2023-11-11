@@ -11,17 +11,5 @@
   margin: 10px;
   border-radius: 10px;
   font-weight: 900;
-
-}
-
-.textarea {
-  border: none;
-  font-size: 12px;
-  background-color: #e4d58c;
-  color: black;
-  border-radius: 10px;
-  padding: 10px;
-  outline: none;
-  font-weight: 900;
-
+  user-select: none;
 }
