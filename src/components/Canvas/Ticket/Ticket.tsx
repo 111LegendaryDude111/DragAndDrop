@@ -8,17 +8,14 @@ type TicketProps = TicketType & { dispatch: React.Dispatch<ActionType> };
 
 export const Ticket: FC<TicketProps> = ({ id, text, dispatch, position }) => {
   const ref = useRef<HTMLDivElement | null>(null);
+  const positionRef = useRef({ x: 0, y: 0 });
 
   useChangeHeightBlock({ ref: ref.current, text });
 
   const cb = useCallback(
     (e: MouseEvent) => {
-      const x = e.clientX - e.target.getBoundingClientRect().top;
-      const y = e.clientY - e.target.getBoundingClientRect().left;
-
-      console.log(`clientX${e.clientX} clientY${e.clientY}`);
-      // const x = e.clientX - prevPostion.current.prevX
-      // const y = e.clientY - prevPostion.current.prevY
+      const x = e.clientX - positionRef.current.x
+      const y = e.clientY - positionRef.current.y
       dispatch({
         type: StoreActions.changePosition,
         position: { x, y },
@@ -29,12 +26,9 @@ export const Ticket: FC<TicketProps> = ({ id, text, dispatch, position }) => {
     [dispatch, id, text]
   );
 
-  const mouseDown = useCallback(
-    () => {
-      document.addEventListener("mousemove", cb);
-    },
-    [cb]
-  );
+  const mouseDown = useCallback(() => {
+    document.addEventListener("mousemove", cb);
+  }, [cb]);
 
   const mouseUp = useCallback(() => {
     document.removeEventListener("mousemove", cb);
@@ -42,6 +36,10 @@ export const Ticket: FC<TicketProps> = ({ id, text, dispatch, position }) => {
 
   useEffect(() => {
     if (ref.current) {
+      console.log(ref.current.getBoundingClientRect());
+      positionRef.current.x = ref.current.getBoundingClientRect().left;
+      positionRef.current.y = ref.current.getBoundingClientRect().top;
+
       ref.current.addEventListener("mousedown", mouseDown);
       document.addEventListener("mouseup", mouseUp);
 
@@ -50,6 +48,7 @@ export const Ticket: FC<TicketProps> = ({ id, text, dispatch, position }) => {
       };
     }
   }, [mouseDown, mouseUp]);
+
 
   return (
     <div
