@@ -8,38 +8,50 @@ type TicketProps = TicketType & { dispatch: React.Dispatch<ActionType> };
 
 export const Ticket: FC<TicketProps> = ({ id, text, dispatch, position }) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  const positionRef = useRef({ x: 0, y: 0 });
-
+  const positionRef = useRef<{ x: number; y: number } | null>(null);
+  const initialPosition = useRef<{ x: number; y: number } | null>(null);
   useChangeHeightBlock({ ref: ref.current, text });
 
   const cb = useCallback(
     (e: MouseEvent) => {
-      const x = e.clientX - positionRef.current.x
-      const y = e.clientY - positionRef.current.y
-      dispatch({
-        type: StoreActions.changePosition,
-        position: { x, y },
-        text,
-        id,
-      });
+      if (positionRef.current && initialPosition.current) {
+        const diffX = e.clientX - positionRef.current.x;
+        const diffY = e.clientY - positionRef.current.y;
+
+        const x = initialPosition.current.x + diffX;
+        const y = initialPosition.current.y + diffY;
+
+        dispatch({
+          type: StoreActions.changePosition,
+          position: { x, y },
+          text,
+          id,
+        });
+      }
     },
     [dispatch, id, text]
   );
 
-  const mouseDown = useCallback(() => {
-    document.addEventListener("mousemove", cb);
-  }, [cb]);
+  const mouseDown = useCallback(
+    (e: MouseEvent) => {
+      if (position) {
+        initialPosition.current = { ...position! };
+        positionRef.current = { x: e.clientX, y: e.clientY };
+      }
+
+      document.addEventListener("mousemove", cb);
+    },
+    [cb, position]
+  );
 
   const mouseUp = useCallback(() => {
+    positionRef.current = null;
+    initialPosition.current = null;
     document.removeEventListener("mousemove", cb);
   }, [cb]);
 
   useEffect(() => {
     if (ref.current) {
-      console.log(ref.current.getBoundingClientRect());
-      positionRef.current.x = ref.current.getBoundingClientRect().left;
-      positionRef.current.y = ref.current.getBoundingClientRect().top;
-
       ref.current.addEventListener("mousedown", mouseDown);
       document.addEventListener("mouseup", mouseUp);
 
@@ -48,7 +60,6 @@ export const Ticket: FC<TicketProps> = ({ id, text, dispatch, position }) => {
       };
     }
   }, [mouseDown, mouseUp]);
-
 
   return (
     <div
