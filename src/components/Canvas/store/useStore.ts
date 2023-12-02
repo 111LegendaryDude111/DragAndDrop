@@ -6,18 +6,33 @@ export enum StoreActions {
   changePosition = "changePosition",
 }
 
-export type ActionType = {
-  type: StoreActions;
-  text: string;
-  id: string;
-  position?: { x: number; y: number };
-};
-
 export type TicketType = {
   id: string;
   text: string;
-  position?: { x: number; y: number };
+  position: { x: number; y: number };
 };
+
+export type ChangePositionType = {
+  position: TicketType["position"];
+  id: string;
+} & {
+  type: StoreActions.changePosition;
+};
+
+export type ChangeTextType = {
+  text: TicketType["text"];
+  id: string;
+} & {
+  type: StoreActions.changeText;
+};
+
+export type CreateTicketType = TicketType & {
+  text: string;
+} & {
+  type: StoreActions.createTicket;
+};
+
+export type ActionType = CreateTicketType | ChangeTextType | ChangePositionType;
 
 function reducer(
   state: [] | TicketType[],
@@ -31,7 +46,7 @@ function reducer(
         {
           id: id,
           text: text,
-          position: position ? { x: position.x, y: position.y } : undefined,
+          position: { x: position.x, y: position.y },
         },
       ];
     }
