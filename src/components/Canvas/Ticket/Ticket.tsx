@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { TextArea } from "../../windgets/TextArea/TextArea";
+import { TextArea } from "../../shared/TextArea/TextArea";
 import { ActionType, StoreActions, TicketType } from "../store/useStore";
 import { useChangeHeightBlock } from "./hooks/useChangeHeightBlock";
 import styles from "./styles.module.css";
