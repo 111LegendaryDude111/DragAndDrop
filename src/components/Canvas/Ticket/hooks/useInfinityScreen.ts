@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export const useInfiniteScreen = (): {
+export const useInfinityScreen = (): {
   width: number;
   height: number;
 } => {

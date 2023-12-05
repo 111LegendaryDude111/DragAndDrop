@@ -2,13 +2,13 @@ import React, { FC } from "react";
 import { Ticket } from "./Ticket/Ticket";
 import { StoreActions, TicketType, useStore } from "./store/useStore";
 import { useZoom } from "./Ticket/hooks/useZoom";
-import { useInfiniteScreen } from "./Ticket/hooks/useInfiniteScreen";
+import { useInfinityScreen } from "./Ticket/hooks/useInfinityScreen";
 
 export const Canvas: FC = () => {
   const { state, dispatch } = useStore();
 
   const zoomStyles = useZoom();
-  const canvasDimensions = useInfiniteScreen();
+  const canvasDimensions = useInfinityScreen();
 
   return (
     <div
