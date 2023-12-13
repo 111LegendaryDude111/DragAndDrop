@@ -3,37 +3,44 @@ import { Ticket } from "./Ticket/Ticket";
 import { StoreActions, TicketType, useStore } from "./store/useStore";
 import { useZoom } from "./Ticket/hooks/useZoom";
 import { useInfinityScreen } from "./Ticket/hooks/useInfinityScreen";
-
+import "./styles.css";
 export const Canvas: FC = () => {
   const { state, dispatch } = useStore();
 
-  const zoomStyles = useZoom();
-  const canvasDimensions = useInfinityScreen();
+  const { scale } = useZoom();
+  const { translate, currentCoodinates } = useInfinityScreen();
 
   return (
     <div
       style={{
-        ...zoomStyles,
-        width: `${canvasDimensions.width}vw`,
-        height: `${canvasDimensions.height}vh`,
+        width: "100%",
+        height: "100%",
       }}
-      className="canvas"
     >
       <button
+        className="createButton"
         onClick={() => {
           dispatch({
             type: StoreActions.createTicket,
             text: "",
             id: new Date().toISOString(),
-            position: { x: 116, y: 83 },
+            currentPosition: currentCoodinates ?? { x: 0, y: 110 },
+            initialPosition: { x: 0, y: 110 },
           });
         }}
       >
         + Create Elemet
       </button>
-      <div>
+
+      <div
+        style={{
+          transform: `${translate} ${scale}`,
+          transformOrigin: "top left",
+        }}
+        className="ticketsWrapper"
+      >
         {state.map((el: TicketType) => {
-          const { id, text, position } = el;
+          const { id, text, currentPosition } = el;
 
           return (
             <Ticket
@@ -41,7 +48,7 @@ export const Canvas: FC = () => {
               text={text}
               dispatch={dispatch}
               id={id}
-              position={position}
+              currentPosition={currentPosition}
             />
           );
         })}

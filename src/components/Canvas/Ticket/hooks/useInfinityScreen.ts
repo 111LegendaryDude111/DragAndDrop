@@ -1,50 +1,48 @@
 import { useEffect, useRef, useState } from "react";
 
 export const useInfinityScreen = (): {
-  width: number;
-  height: number;
+  translate: string;
+  currentCoodinates: null | { x: number; y: number };
 } => {
-  const [isDragging, setIsDragging] = useState(false);
-
-  const initialPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-
   const [canvasDimensions, setCanvasDimensions] = useState<{
-    width: number;
-    height: number;
-  }>({
-    width: 90,
-    height: 90,
-  });
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
+
+  const currentCoodinates = useRef<{ x: number; y: number } | null>(null);
+  const startPosition = useRef<null | { x: number; y: number }>(null);
 
   useEffect(() => {
-    const handleMouseDown = (event: any) => {
+    const handleMouseDown = (event: MouseEvent) => {
+      //@ts-ignore
       if (event.target.id) {
         return;
       }
 
-      setIsDragging(true);
-
-      initialPos.current.x = event.screenX;
-      initialPos.current.y = event.screenY;
+      startPosition.current = canvasDimensions;
+      currentCoodinates.current = { x: event.clientX, y: event.clientY };
     };
 
     const handleMouseMove = (event: MouseEvent) => {
-      if (!isDragging) return;
+      if (!startPosition.current || !currentCoodinates.current) {
+        return;
+      }
 
-      const deltaX = event.screenX - initialPos.current.x;
-      const deltaY = event.screenY - initialPos.current.y;
+      const diffX =
+        event.clientX - currentCoodinates.current.x + startPosition.current.x;
+      const diffY =
+        event.clientY - currentCoodinates.current.y + startPosition.current.y;
 
       setCanvasDimensions((prev) => ({
         ...prev,
-        width: -deltaX,
-        height: -deltaY,
+        x: diffX,
+        y: diffY,
       }));
-
-      window.scrollBy(-deltaX, -deltaY);
     };
 
     const handleMouseUp = () => {
-      setIsDragging(false);
+      startPosition.current = null;
+      currentCoodinates.current = null;
     };
 
     document.addEventListener("mousedown", handleMouseDown);
@@ -52,11 +50,14 @@ export const useInfinityScreen = (): {
     document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mousedown", handleMouseDown);
     };
-  }, [isDragging]);
+  }, [canvasDimensions]);
 
-  return canvasDimensions;
+  return {
+    translate: `translate(${canvasDimensions.x}px,${canvasDimensions.y}px)`,
+    currentCoodinates: currentCoodinates.current,
+  };
 };

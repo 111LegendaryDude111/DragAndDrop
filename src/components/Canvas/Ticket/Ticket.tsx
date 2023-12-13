@@ -5,17 +5,29 @@ import { useChangeHeightBlock } from "./hooks/useChangeHeightBlock";
 import styles from "./styles.module.css";
 import { useDragAndDropLogic } from "./hooks/useDrapAndDropLogic";
 
-type TicketProps = TicketType & { dispatch: React.Dispatch<ActionType> };
+type TicketProps = Omit<TicketType, "initialPosition"> & {
+  dispatch: React.Dispatch<ActionType>;
+};
 
-export const Ticket: FC<TicketProps> = ({ id, text, dispatch, position }) => {
-  const { elementRef } = useDragAndDropLogic({ position, dispatch,id });
+export const Ticket: FC<TicketProps> = ({
+  id,
+  text,
+  dispatch,
+  currentPosition,
+}) => {
+  const { elementRef } = useDragAndDropLogic({
+    position: currentPosition,
+    dispatch,
+    id,
+  });
   useChangeHeightBlock({ ref: elementRef.current, text });
+
   return (
     <div
       ref={elementRef}
       id={String(id)}
       style={{
-        transform: `translate(${position?.x}px,${position?.y}px)`,
+        transform: `translate(${currentPosition.x}px,${currentPosition.y}px)`,
       }}
       className={styles.ticket}
     >

@@ -5,3 +5,11 @@ button {
   background-color: #e8c080;
   margin: 10px;
 }
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+}
