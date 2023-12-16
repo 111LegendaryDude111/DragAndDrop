@@ -7,8 +7,12 @@ import "./styles.css";
 export const Canvas: FC = () => {
   const { state, dispatch } = useStore();
 
-  const { scale } = useZoom();
-  const { translate, canvasDimensions } = useInfinityScreen();
+  const { translate, canvasDimensions, setCanvasDimensions } =
+    useInfinityScreen();
+  const { scale } = useZoom({
+    canvasDimensions,
+    setCanvasDimensions,
+  });
 
   return (
     <div

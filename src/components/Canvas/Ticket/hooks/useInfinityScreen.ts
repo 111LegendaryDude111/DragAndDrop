@@ -55,7 +55,7 @@ export const useInfinityScreen = () => {
 
   return {
     translate: `translate(${canvasDimensions.x}px,${canvasDimensions.y}px)`,
-    currentCoodinates: currentCoodinates.current,
     canvasDimensions,
+    setCanvasDimensions,
   };
 };
