@@ -16,7 +16,6 @@ export const Ticket: FC<TicketProps> = ({
   currentPosition,
 }) => {
   const { elementRef } = useDragAndDropLogic({
-    position: currentPosition,
     dispatch,
     id,
   });

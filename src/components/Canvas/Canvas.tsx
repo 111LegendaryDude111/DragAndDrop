@@ -8,7 +8,7 @@ export const Canvas: FC = () => {
   const { state, dispatch } = useStore();
 
   const { scale } = useZoom();
-  const { translate, currentCoodinates } = useInfinityScreen();
+  const { translate, canvasDimensions } = useInfinityScreen();
 
   return (
     <div
@@ -24,8 +24,10 @@ export const Canvas: FC = () => {
             type: StoreActions.createTicket,
             text: "",
             id: new Date().toISOString(),
-            currentPosition: currentCoodinates ?? { x: 0, y: 110 },
-            initialPosition: { x: 0, y: 110 },
+            currentPosition: {
+              x: 100 - canvasDimensions.x,
+              y: 110 - canvasDimensions.y,
+            },
           });
         }}
       >

@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export const useInfinityScreen = (): {
-  translate: string;
-  currentCoodinates: null | { x: number; y: number };
-} => {
+export const useInfinityScreen = () => {
   const [canvasDimensions, setCanvasDimensions] = useState<{
     x: number;
     y: number;
@@ -59,5 +56,6 @@ export const useInfinityScreen = (): {
   return {
     translate: `translate(${canvasDimensions.x}px,${canvasDimensions.y}px)`,
     currentCoodinates: currentCoodinates.current,
+    canvasDimensions,
   };
 };
