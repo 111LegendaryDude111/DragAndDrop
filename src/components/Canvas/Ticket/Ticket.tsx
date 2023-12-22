@@ -7,6 +7,7 @@ import { useDragAndDropLogic } from "./hooks/useDrapAndDropLogic";
 
 type TicketProps = Omit<TicketType, "initialPosition"> & {
   dispatch: React.Dispatch<ActionType>;
+  scale: number;
 };
 
 export const Ticket: FC<TicketProps> = ({
@@ -14,10 +15,12 @@ export const Ticket: FC<TicketProps> = ({
   text,
   dispatch,
   currentPosition,
+  scale,
 }) => {
   const { elementRef } = useDragAndDropLogic({
     dispatch,
     id,
+    scale,
   });
   useChangeHeightBlock({ ref: elementRef.current, text });
 

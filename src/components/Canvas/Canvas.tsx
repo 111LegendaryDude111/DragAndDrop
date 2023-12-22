@@ -37,13 +37,23 @@ export const Canvas: FC = () => {
       >
         + Create Elemet
       </button>
-
       <div
         style={{
-          transform: `${translate} ${scale}`,
-          transformOrigin: "top left",
+          position: "absolute",
+          width: "100%",
+          height: "100%",
         }}
-        className="ticketsWrapper"
+      ></div>
+      <div
+        style={{
+          transform: `${translate} scale(${scale})`,
+          transformOrigin: "top left",
+          border: "1px solid red",
+          width: 0,
+          height: 0,
+          position: "absolute",
+        }}
+        // className="ticketsWrapper"
       >
         {state.map((el: TicketType) => {
           const { id, text, currentPosition } = el;
@@ -55,6 +65,7 @@ export const Canvas: FC = () => {
               dispatch={dispatch}
               id={id}
               currentPosition={currentPosition}
+              scale={scale}
             />
           );
         })}
