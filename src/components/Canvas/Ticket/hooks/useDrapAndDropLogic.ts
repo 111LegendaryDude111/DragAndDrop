@@ -1,17 +1,23 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { ActionType, StoreActions } from "../../store/useStore";
 
 export const useDragAndDropLogic = ({
   dispatch,
   id,
+  scale,
 }: {
   dispatch: React.Dispatch<ActionType>;
   id: string;
+  scale: number;
 }): {
   elementRef: React.MutableRefObject<HTMLDivElement | null>;
 } => {
   const ref = useRef<HTMLDivElement | null>(null);
+  const scaleValue = useRef(0);
 
+  useLayoutEffect(() => {
+    scaleValue.current = scale;
+  });
   useEffect(() => {
     const element = ref.current;
     if (!element) {
@@ -26,8 +32,8 @@ export const useDragAndDropLogic = ({
       if (!prevMousePosition) {
         return;
       }
-      const diffX = e.clientX - prevMousePosition.x;
-      const diffY = e.clientY - prevMousePosition.y;
+      const diffX = (e.clientX - prevMousePosition.x) / scaleValue.current;
+      const diffY = (e.clientY - prevMousePosition.y) / scaleValue.current;
       dispatch({
         type: StoreActions.changePosition,
         id,

@@ -11,8 +11,7 @@ export const useInfinityScreen = () => {
 
   useEffect(() => {
     const handleMouseDown = (event: MouseEvent) => {
-      //@ts-ignore
-      if (event.target.id) {
+      if (event.target instanceof HTMLDivElement && event.target.id) {
         return;
       }
 
@@ -42,8 +41,16 @@ export const useInfinityScreen = () => {
       currentCoodinates.current = null;
     };
 
+    const wrapper = (event: MouseEvent) => {
+      const cbWrap = () => {
+        handleMouseMove(event);
+      };
+
+      requestAnimationFrame(cbWrap);
+    };
+
     document.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mousemove", wrapper);
     document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
