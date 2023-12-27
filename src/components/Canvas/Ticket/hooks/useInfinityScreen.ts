@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export const useInfinityScreen = () => {
+export const useInfinityScreen = (ref: HTMLDivElement | null) => {
   const [canvasDimensions, setCanvasDimensions] = useState<{
     x: number;
     y: number;
@@ -10,6 +10,10 @@ export const useInfinityScreen = () => {
   const startPosition = useRef<null | { x: number; y: number }>(null);
 
   useEffect(() => {
+    // if (!ref) {
+    //   return;
+    // }
+
     const handleMouseDown = (event: MouseEvent) => {
       if (event.target instanceof HTMLDivElement && event.target.id) {
         return;
@@ -17,6 +21,7 @@ export const useInfinityScreen = () => {
 
       startPosition.current = canvasDimensions;
       currentCoodinates.current = { x: event.clientX, y: event.clientY };
+      // ref.addEventListener("mousemove", handleMouseMove);
     };
 
     const handleMouseMove = (event: MouseEvent) => {
@@ -39,26 +44,35 @@ export const useInfinityScreen = () => {
     const handleMouseUp = () => {
       startPosition.current = null;
       currentCoodinates.current = null;
+      // ref.removeEventListener("mousemove", handleMouseMove);
     };
 
-    const wrapper = (event: MouseEvent) => {
-      const cbWrap = () => {
-        handleMouseMove(event);
+    const throttle = (fn: (event: MouseEvent) => void) => {
+      let throttle = false;
+      return function (event: MouseEvent) {
+        if (!throttle) {
+          fn(event);
+          throttle = true;
+          requestAnimationFrame(() => {
+            throttle = false;
+          });
+        }
       };
-
-      requestAnimationFrame(cbWrap);
     };
+    const throttledfunc = throttle(handleMouseMove);
 
     document.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("mousemove", wrapper);
+    document.addEventListener("mousemove", throttledfunc);
+    // document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
       document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mousemove", throttledfunc);
+      // document.addEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mousedown", handleMouseDown);
     };
-  }, [canvasDimensions]);
+  }, [canvasDimensions, ref]);
 
   return {
     translate: `translate(${canvasDimensions.x}px,${canvasDimensions.y}px)`,

@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useRef } from "react";
 import { Ticket } from "./Ticket/Ticket";
 import { StoreActions, TicketType, useStore } from "./store/useStore";
 import { useZoom } from "./Ticket/hooks/useZoom";
@@ -7,8 +7,9 @@ import "./styles.css";
 export const Canvas: FC = () => {
   const { state, dispatch } = useStore();
 
+  const ref = useRef<null | HTMLDivElement>(null);
   const { translate, canvasDimensions, setCanvasDimensions } =
-    useInfinityScreen();
+    useInfinityScreen(ref.current);
   const { scale } = useZoom({
     canvasDimensions,
     setCanvasDimensions,
@@ -45,6 +46,7 @@ export const Canvas: FC = () => {
         }}
       ></div>
       <div
+        ref={ref}
         style={{
           transform: `${translate} scale(${scale})`,
           transformOrigin: "top left",
