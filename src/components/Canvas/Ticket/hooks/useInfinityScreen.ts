@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useThrottle } from "./useTrottle";
 
 export const useInfinityScreen = (ref: HTMLDivElement | null) => {
   const [canvasDimensions, setCanvasDimensions] = useState<{
@@ -8,6 +9,8 @@ export const useInfinityScreen = (ref: HTMLDivElement | null) => {
 
   const currentCoodinates = useRef<{ x: number; y: number } | null>(null);
   const startPosition = useRef<null | { x: number; y: number }>(null);
+
+  const throttle = useThrottle();
 
   useEffect(() => {
     // if (!ref) {
@@ -47,32 +50,34 @@ export const useInfinityScreen = (ref: HTMLDivElement | null) => {
       // ref.removeEventListener("mousemove", handleMouseMove);
     };
 
-    const throttle = (fn: (event: MouseEvent) => void) => {
-      let throttle = false;
-      return function (event: MouseEvent) {
-        if (!throttle) {
-          fn(event);
-          throttle = true;
-          requestAnimationFrame(() => {
-            throttle = false;
-          });
-        }
-      };
+    const throttled = (event: MouseEvent) => {
+      let shouldWait = false;
+
+      if (shouldWait) {
+        return;
+      }
+
+      handleMouseMove(event);
+      console.log("throttle ");
+      shouldWait = true;
+
+      requestAnimationFrame(() => {
+        shouldWait = false;
+      });
     };
-    const throttledfunc = throttle(handleMouseMove);
 
     document.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("mousemove", throttledfunc);
     // document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mousemove", throttled);
     document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
       document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("mousemove", throttledfunc);
       // document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mousemove", throttled);
       document.removeEventListener("mousedown", handleMouseDown);
     };
-  }, [canvasDimensions, ref]);
+  }, [canvasDimensions, ref, throttle]);
 
   return {
     translate: `translate(${canvasDimensions.x}px,${canvasDimensions.y}px)`,
