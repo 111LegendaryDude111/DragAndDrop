@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Coordinates = { x: number; y: number };
 type UseZoomProps = {
@@ -6,37 +6,32 @@ type UseZoomProps = {
   setCanvasDimensions: React.Dispatch<React.SetStateAction<Coordinates>>;
 };
 
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 5;
+
+const calm = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
+
 export const useZoom = ({
   canvasDimensions,
   setCanvasDimensions,
 }: UseZoomProps) => {
   const [scale, setScale] = useState<number>(1);
-  const zoomCornerFields = useRef<{ zoomIn: boolean; zoomOut: boolean }>({
-    zoomIn: true,
-    zoomOut: false,
-  });
 
   useEffect(() => {
-    const zoom = (e: WheelEvent) => {
-      if (!e.ctrlKey) {
+    const zoom = (wheelEvent: WheelEvent) => {
+      if (!wheelEvent.ctrlKey) {
         return;
       }
 
-      let newScale = scale;
+      const diff = wheelEvent.deltaY > 0 ? -0.02 : 0.02;
+      const newScale = calm(diff + scale, MIN_ZOOM, MAX_ZOOM);
 
-      if (zoomCornerFields.current.zoomOut && e.deltaY > 0) {
-        newScale = scale - 0.02;
-      }
-
-      if (zoomCornerFields.current.zoomIn && e.deltaY < 0) {
-        newScale = scale + 0.02;
-      }
-
-      const distanceX = e.clientX - canvasDimensions.x;
+      const distanceX = wheelEvent.clientX - canvasDimensions.x;
       const distanceXAfterScaleUpdate = (distanceX / scale) * newScale;
       const diffX = distanceXAfterScaleUpdate - distanceX;
 
-      const distanceY = e.clientY - canvasDimensions.y;
+      const distanceY = wheelEvent.clientY - canvasDimensions.y;
       const distanceYAfterScaleUpdate = (distanceY / scale) * newScale;
       const diffY = distanceYAfterScaleUpdate - distanceY;
 
@@ -48,17 +43,22 @@ export const useZoom = ({
       }));
     };
 
-    document.addEventListener("wheel", zoom);
+    const wrapper = (wheelEvent: WheelEvent) => {
+      const callbackWrapper = () => {
+        zoom(wheelEvent);
+      };
+
+      requestAnimationFrame(callbackWrapper);
+    };
+
+    document.addEventListener("wheel", wrapper);
 
     return () => {
-      document.removeEventListener("wheel", zoom);
+      document.removeEventListener("wheel", wrapper);
     };
   }, [canvasDimensions, scale, setCanvasDimensions]);
 
-  zoomCornerFields.current.zoomIn = scale < 5 ? true : false;
-  zoomCornerFields.current.zoomOut = scale > 1 ? true : false;
-
   return {
-    scale: `scale(${scale})`,
+    scale,
   };
 };

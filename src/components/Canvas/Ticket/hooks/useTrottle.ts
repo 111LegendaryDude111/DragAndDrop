@@ -1,16 +1,22 @@
-import { useCallback } from "react";
+import { useRef } from "react";
 
-type WheelEvent = (wheelEvent: WheelEvent) => void;
+export const useThrottle = () => {
+  const throttleSeed = useRef<null | number>(null);
 
-export const useTrottle = (callback: (wheelEvent: WheelEvent) => void) => {
-  const wrapper = (event: WheelEvent) => {
-    const cbWrap = () => {
-      callback(event);
-      console.log("cbWrap");
-    };
+  const throttleFunction = useRef(
+    (
+      func: (event: MouseEvent | WheelEvent) => void,
+      event: MouseEvent | WheelEvent
+    ) => {
+      if (!throttleSeed.current) {
+        // Call the callback immediately for the first time
+        func(event);
+        throttleSeed.current = requestAnimationFrame(() => {
+          throttleSeed.current = null;
+        });
+      }
+    }
+  );
 
-    requestAnimationFrame(cbWrap);
-  };
-
-  return wrapper;
+  return throttleFunction.current;
 };
