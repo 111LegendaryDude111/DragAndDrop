@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { useThrottle } from "./useTrottle";
+import { useEffect, useState } from "react";
 
 export const useInfinityScreen = (ref: HTMLDivElement | null) => {
   const [canvasDimensions, setCanvasDimensions] = useState<{
@@ -7,77 +6,67 @@ export const useInfinityScreen = (ref: HTMLDivElement | null) => {
     y: number;
   }>({ x: 0, y: 0 });
 
-  const currentCoodinates = useRef<{ x: number; y: number } | null>(null);
-  const startPosition = useRef<null | { x: number; y: number }>(null);
-
-  const throttle = useThrottle();
-
   useEffect(() => {
-    // if (!ref) {
-    //   return;
-    // }
+    if (!ref) {
+      return;
+    }
 
-    const handleMouseDown = (event: MouseEvent) => {
-      if (event.target instanceof HTMLDivElement && event.target.id) {
-        return;
-      }
+    const rafThrottle = (callback: (event: MouseEvent) => void) => {
+      let timerId: number | null = null;
+      let latestArgs: MouseEvent | null = null;
 
-      startPosition.current = canvasDimensions;
-      currentCoodinates.current = { x: event.clientX, y: event.clientY };
-      // ref.addEventListener("mousemove", handleMouseMove);
+      return <T extends MouseEvent>(args: T) => {
+        latestArgs = args;
+        if (timerId !== null) {
+          return;
+        }
+        callback(latestArgs);
+        timerId = requestAnimationFrame(() => {
+          timerId = null;
+        });
+      };
     };
 
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!startPosition.current || !currentCoodinates.current) {
+    let prevPosition: { x: number; y: number } | null = null;
+
+    const handleMouseDown = (event: MouseEvent) => {
+      prevPosition = { x: event.clientX, y: event.clientY };
+    };
+
+    const handleMouseMove = rafThrottle((event: MouseEvent) => {
+      if (!prevPosition) {
         return;
       }
 
-      const diffX =
-        event.clientX - currentCoodinates.current.x + startPosition.current.x;
-      const diffY =
-        event.clientY - currentCoodinates.current.y + startPosition.current.y;
+      const diffX = event.clientX - prevPosition.x;
+      const diffY = event.clientY - prevPosition.y;
+
+      prevPosition = {
+        x: event.clientX,
+        y: event.clientY,
+      };
 
       setCanvasDimensions((prev) => ({
         ...prev,
-        x: diffX,
-        y: diffY,
+        x: prev.x + diffX,
+        y: prev.y + diffY,
       }));
-    };
+    });
 
     const handleMouseUp = () => {
-      startPosition.current = null;
-      currentCoodinates.current = null;
-      // ref.removeEventListener("mousemove", handleMouseMove);
+      prevPosition = null;
     };
 
-    const throttled = (event: MouseEvent) => {
-      let shouldWait = false;
-
-      if (shouldWait) {
-        return;
-      }
-
-      handleMouseMove(event);
-      console.log("throttle ");
-      shouldWait = true;
-
-      requestAnimationFrame(() => {
-        shouldWait = false;
-      });
-    };
-
-    document.addEventListener("mousedown", handleMouseDown);
-    // document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mousemove", throttled);
-    document.addEventListener("mouseup", handleMouseUp);
+    ref.addEventListener("mousedown", handleMouseDown);
+    ref.addEventListener("mousemove", handleMouseMove);
+    ref.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      document.removeEventListener("mouseup", handleMouseUp);
-      // document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mousemove", throttled);
-      document.removeEventListener("mousedown", handleMouseDown);
+      ref.removeEventListener("mouseup", handleMouseUp);
+      ref.removeEventListener("mouseup", handleMouseMove);
+      ref.removeEventListener("mousedown", handleMouseDown);
     };
-  }, [canvasDimensions, ref, throttle]);
+  }, [ref]);
 
   return {
     translate: `translate(${canvasDimensions.x}px,${canvasDimensions.y}px)`,

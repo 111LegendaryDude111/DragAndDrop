@@ -39,6 +39,7 @@ export const Canvas: FC = () => {
         + Create Elemet
       </button>
       <div
+        ref={ref}
         style={{
           position: "absolute",
           width: "100%",
@@ -46,16 +47,13 @@ export const Canvas: FC = () => {
         }}
       ></div>
       <div
-        ref={ref}
         style={{
           transform: `${translate} scale(${scale})`,
           transformOrigin: "top left",
-          border: "1px solid red",
           width: 0,
           height: 0,
           position: "absolute",
         }}
-        // className="ticketsWrapper"
       >
         {state.map((el: TicketType) => {
           const { id, text, currentPosition } = el;
