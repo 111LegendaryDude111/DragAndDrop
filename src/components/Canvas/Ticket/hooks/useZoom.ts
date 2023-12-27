@@ -19,7 +19,25 @@ export const useZoom = ({
   const [scale, setScale] = useState<number>(1);
 
   useEffect(() => {
-    const zoom = (wheelEvent: WheelEvent) => {
+    const rafThrottled = (callback: (event: WheelEvent) => void) => {
+      let id: number | null = null;
+      let eventsArgs = null;
+
+      return (args: WheelEvent) => {
+        eventsArgs = args;
+        if (id !== null) {
+          return;
+        }
+
+        callback(eventsArgs);
+
+        id = requestAnimationFrame(() => {
+          id = null;
+        });
+      };
+    };
+
+    const zoom = rafThrottled((wheelEvent: WheelEvent) => {
       if (!wheelEvent.ctrlKey) {
         return;
       }
@@ -41,20 +59,12 @@ export const useZoom = ({
         x: prev.x - diffX,
         y: prev.y - diffY,
       }));
-    };
+    });
 
-    const wrapper = (wheelEvent: WheelEvent) => {
-      const callbackWrapper = () => {
-        zoom(wheelEvent);
-      };
-
-      requestAnimationFrame(callbackWrapper);
-    };
-
-    document.addEventListener("wheel", wrapper);
+    document.addEventListener("wheel", zoom);
 
     return () => {
-      document.removeEventListener("wheel", wrapper);
+      document.removeEventListener("wheel", zoom);
     };
   }, [canvasDimensions, scale, setCanvasDimensions]);
 
