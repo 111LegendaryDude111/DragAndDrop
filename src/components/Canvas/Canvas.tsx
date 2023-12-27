@@ -39,6 +39,7 @@ export const Canvas: FC = () => {
         + Create Elemet
       </button>
       <div
+        ref={ref}
         style={{
           position: "absolute",
           width: "100%",
@@ -46,7 +47,6 @@ export const Canvas: FC = () => {
         }}
       ></div>
       <div
-        ref={ref}
         style={{
           transform: `${translate} scale(${scale})`,
           transformOrigin: "top left",
