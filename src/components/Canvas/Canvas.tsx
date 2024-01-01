@@ -1,8 +1,8 @@
 import React, { FC, useRef } from "react";
 import { Ticket } from "./Ticket/Ticket";
 import { StoreActions, TicketType, useStore } from "./store/useStore";
-import { useZoom } from "./Ticket/hooks/useZoom";
-import { useInfinityScreen } from "./Ticket/hooks/useInfinityScreen";
+import { useZoom } from "./hooks/useZoom";
+import { useInfinityScreen } from "./hooks/useInfinityScreen";
 import "./styles.css";
 export const Canvas: FC = () => {
   const { state, dispatch } = useStore();

@@ -1,9 +1,8 @@
 import React, { FC } from "react";
 import { TextArea } from "../../shared/TextArea/TextArea";
 import { ActionType, StoreActions, TicketType } from "../store/useStore";
-import { useChangeHeightBlock } from "./hooks/useChangeHeightBlock";
 import styles from "./styles.module.css";
-import { useDragAndDropLogic } from "./hooks/useDrapAndDropLogic";
+import { useDragAndDropLogic } from "../hooks/useDrapAndDropLogic";
 
 type TicketProps = Omit<TicketType, "initialPosition"> & {
   dispatch: React.Dispatch<ActionType>;
@@ -21,8 +20,8 @@ export const Ticket: FC<TicketProps> = ({
     dispatch,
     id,
     scale,
+    text,
   });
-  useChangeHeightBlock({ ref: elementRef.current, text });
 
   return (
     <div

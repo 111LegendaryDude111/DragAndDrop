@@ -1,25 +1,30 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
-import { ActionType, StoreActions } from "../../store/useStore";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { ActionType, StoreActions } from "../store/useStore";
+import { useChangeHeightBlock } from "./useChangeHeightBlock";
 
 export const useDragAndDropLogic = ({
   dispatch,
   id,
   scale,
+  text,
 }: {
   dispatch: React.Dispatch<ActionType>;
   id: string;
   scale: number;
+  text: string;
 }): {
-  elementRef: React.MutableRefObject<HTMLDivElement | null>;
+  elementRef: (element: HTMLDivElement | null) => void;
 } => {
-  const ref = useRef<HTMLDivElement | null>(null);
   const scaleValue = useRef(0);
 
   useLayoutEffect(() => {
     scaleValue.current = scale;
   });
+
+  const elementFormCbRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    const element = ref.current;
+    const element = elementFormCbRef.current;
     if (!element) {
       return;
     }
@@ -59,7 +64,15 @@ export const useDragAndDropLogic = ({
     };
   }, [dispatch, id]);
 
+  const cbRef = useCallback((element: HTMLDivElement | null) => {
+    if (!element) return;
+
+    elementFormCbRef.current = element;
+  }, []);
+
+  useChangeHeightBlock({ ref: elementFormCbRef.current, text });
+
   return {
-    elementRef: ref,
+    elementRef: cbRef,
   };
 };
