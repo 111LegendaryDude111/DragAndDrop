@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRafThrottle } from "./useRafThrottle";
 
 type Coordinates = { x: number; y: number };
 type UseZoomProps = {
@@ -17,26 +18,9 @@ export const useZoom = ({
   setCanvasDimensions,
 }: UseZoomProps) => {
   const [scale, setScale] = useState<number>(1);
+  const rafThrottled = useRafThrottle<WheelEvent>();
 
   useEffect(() => {
-    const rafThrottled = (callback: (event: WheelEvent) => void) => {
-      let id: number | null = null;
-      let eventsArgs = null;
-
-      return (args: WheelEvent) => {
-        eventsArgs = args;
-        if (id !== null) {
-          return;
-        }
-
-        callback(eventsArgs);
-
-        id = requestAnimationFrame(() => {
-          id = null;
-        });
-      };
-    };
-
     const zoom = rafThrottled((wheelEvent: WheelEvent) => {
       if (!wheelEvent.ctrlKey) {
         return;
@@ -66,7 +50,7 @@ export const useZoom = ({
     return () => {
       document.removeEventListener("wheel", zoom);
     };
-  }, [canvasDimensions, scale, setCanvasDimensions]);
+  }, [canvasDimensions, rafThrottled, scale, setCanvasDimensions]);
 
   return {
     scale,
