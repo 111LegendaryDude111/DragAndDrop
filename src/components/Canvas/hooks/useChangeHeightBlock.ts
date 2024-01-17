@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 type UseChangeHeightBlockProps = {
-  ref: HTMLDivElement | null;
+  ref: HTMLElement | null;
   text: string;
 };
 

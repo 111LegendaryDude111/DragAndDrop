@@ -46,6 +46,7 @@ export const Ticket: FC<TicketProps> = ({
           });
         }}
       />
+      <pre>{JSON.stringify({ a: { b: { c: 5 } } }, null, 2)}</pre>
     </div>
   );
 };

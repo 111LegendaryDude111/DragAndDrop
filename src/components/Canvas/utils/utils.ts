@@ -5,31 +5,47 @@ export type Listener = {
 };
 
 export const addEventListeners = (
-  element: HTMLDivElement,
+  element: HTMLElement,
   arrayOfListeners: Array<Listener>
 ): void => {
   arrayOfListeners.forEach((el) => {
     const { onElement, callback, type } = el;
     if (onElement) {
-      //@ts-ignore
       element.addEventListener(type, callback);
+    } else {
+      document.addEventListener(type, callback);
     }
-    //@ts-ignore
-    document.addEventListener(type, callback);
   });
 };
 
 export const removeEventListeners = (
-  element: HTMLDivElement,
+  element: HTMLElement,
   arrayOfListeners: Array<Listener>
 ) => {
   arrayOfListeners.forEach((el) => {
     const { callback, onElement, type } = el;
     if (onElement) {
-      //@ts-ignore
       element.removeEventListener(type, callback);
+    } else {
+      document.removeEventListener(type, callback);
     }
-    //@ts-ignore
-    document.removeEventListener(type, callback);
   });
+};
+
+export const rafThrottled = <T>(callback: (event: T) => void) => {
+  let id: number | null = null;
+  let eventsArgs = null;
+
+  return (args: T) => {
+    eventsArgs = args;
+    if (id !== null) {
+      return;
+    }
+
+    callback(eventsArgs);
+
+    id = requestAnimationFrame(() => {
+      id = null;
+    });
+  };
 };

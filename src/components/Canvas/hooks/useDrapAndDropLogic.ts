@@ -1,6 +1,10 @@
 import { useCallback, useLayoutEffect, useRef } from "react";
 import { ActionType, StoreActions } from "../store/useStore";
-import { Listener, removeEventListeners } from "../utils/utils";
+import {
+  Listener,
+  addEventListeners,
+  removeEventListeners,
+} from "../utils/utils";
 
 export const useDragAndDropLogic = ({
   dispatch,
@@ -12,8 +16,8 @@ export const useDragAndDropLogic = ({
   scale: number;
   text: string;
 }): {
-  elementRef: (element: HTMLDivElement | null) => void;
-  refForText: HTMLDivElement | null;
+  elementRef: (element: HTMLElement | null) => void;
+  refForText: HTMLElement | null;
 } => {
   const scaleValue = useRef(0);
 
@@ -21,51 +25,17 @@ export const useDragAndDropLogic = ({
     scaleValue.current = scale;
   });
 
-  const elementFromCbRef = useRef<HTMLDivElement | null>(null);
+  const elementFromCbRef = useRef<HTMLElement | null>(null);
 
-  // useEffect(() => {
-  //   const element = elementFormCbRef.current;
-  //   if (!element) {
-  //     return;
-  //   }
-  //   let prevMousePosition: { x: number; y: number } | null = null;
-  //   const mouseDown = (e: MouseEvent) => {
-  //     prevMousePosition = { x: e.clientX, y: e.clientY };
-  //   };
-
-  //   const mouseMove = (e: MouseEvent) => {
-  //     if (!prevMousePosition) {
-  //       return;
-  //     }
-  //     const diffX = (e.clientX - prevMousePosition.x) / scaleValue.current;
-  //     const diffY = (e.clientY - prevMousePosition.y) / scaleValue.current;
-  //     dispatch({
-  //       type: StoreActions.changePosition,
-  //       id,
-  //       diffX,
-  //       diffY,
-  //     });
-
-  //     prevMousePosition = { x: e.clientX, y: e.clientY };
-  //   };
-
-  //   const mouseUp = () => {
-  //     prevMousePosition = null;
-  //   };
-
-  //   element.addEventListener("mousedown", mouseDown);
-  //   document.addEventListener("mousemove", mouseMove);
-  //   document.addEventListener("mouseup", mouseUp);
-
-  //   return () => {
-  //     element.removeEventListener("mousedown", mouseDown);
-  //     document.removeEventListener("mousemove", mouseMove);
-  //     document.removeEventListener("mouseup", mouseUp);
-  //   };
-  // }, [dispatch, id]);
-
+  const cbRefCleanup = useRef(() => {});
   const cbRef = useCallback(
-    (element: HTMLDivElement | null) => {
+    (element: HTMLElement | null) => {
+      elementFromCbRef.current = element;
+      if (!element) {
+        cbRefCleanup.current();
+        return;
+      }
+
       let prevMousePosition: { x: number; y: number } | null = null;
       const mouseDown = (e: MouseEvent) => {
         prevMousePosition = { x: e.clientX, y: e.clientY };
@@ -90,7 +60,6 @@ export const useDragAndDropLogic = ({
       const mouseUp = () => {
         prevMousePosition = null;
       };
-
       const arrayOfListeners: Listener[] = [
         {
           onElement: true,
@@ -108,20 +77,13 @@ export const useDragAndDropLogic = ({
           callback: mouseUp,
         },
       ];
+      addEventListeners(element, arrayOfListeners);
 
-      if (element) {
-        // addEventListeners(element, arrayOfListeners);
-        element.addEventListener("mousedown", mouseDown);
-        document.addEventListener("mousemove", mouseMove);
-        document.addEventListener("mouseup", mouseUp);
-        elementFromCbRef.current = element;
-      }
-
-      if (!element && elementFromCbRef.current) {
-        removeEventListeners(elementFromCbRef.current, arrayOfListeners);
-      }
+      cbRefCleanup.current = () => {
+        removeEventListeners(element, arrayOfListeners);
+      };
     },
-    [dispatch, id]
+    [id, dispatch]
   );
 
   return {
