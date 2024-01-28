@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRafThrottle } from "./useRafThrottle";
 
 export const useInfinityScreen = (ref: HTMLDivElement | null) => {
   const [canvasDimensions, setCanvasDimensions] = useState<{
@@ -6,26 +7,12 @@ export const useInfinityScreen = (ref: HTMLDivElement | null) => {
     y: number;
   }>({ x: 0, y: 0 });
 
+  const rafThrottle = useRafThrottle<MouseEvent>();
+
   useEffect(() => {
     if (!ref) {
       return;
     }
-
-    const rafThrottle = (callback: (event: MouseEvent) => void) => {
-      let timerId: number | null = null;
-      let latestArgs: MouseEvent | null = null;
-
-      return <T extends MouseEvent>(args: T) => {
-        latestArgs = args;
-        if (timerId !== null) {
-          return;
-        }
-        callback(latestArgs);
-        timerId = requestAnimationFrame(() => {
-          timerId = null;
-        });
-      };
-    };
 
     let prevPosition: { x: number; y: number } | null = null;
 
@@ -66,7 +53,7 @@ export const useInfinityScreen = (ref: HTMLDivElement | null) => {
       ref.removeEventListener("mouseup", handleMouseMove);
       ref.removeEventListener("mousedown", handleMouseDown);
     };
-  }, [ref]);
+  }, [rafThrottle, ref]);
 
   return {
     translate: `translate(${canvasDimensions.x}px,${canvasDimensions.y}px)`,
